@@ -1,0 +1,24 @@
+environment:
+  nodejs_version: "10.9.0" # Same version as used in CircleCI.
+
+matrix:
+  fast_finish: true
+
+install:
+  - ps: Install-Product node $env:nodejs_version
+  # --network-timeout is a workaround for https://github.com/yarnpkg/yarn/issues/6221
+  - yarn --frozen-lockfile --network-timeout=500000
+  - yarn webdriver-update-appveyor
+
+test_script:
+  - node --version
+  - yarn --version
+  - yarn test
+  - node tests\legacy-cli\run_e2e.js --appveyor "--glob=tests/{basic,commands,generate,build/styles}/**"
+
+build: off
+deploy: off
+
+cache:
+  - node_modules -> yarn.lock
+  - "%LOCALAPPDATA%\\Yarn"
